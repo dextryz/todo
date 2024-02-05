@@ -1,4 +1,4 @@
-module github.com/dextryz/nostr-todo
+module github.com/dextryz/todo
 
 go 1.21.0
 

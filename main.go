@@ -146,7 +146,11 @@ func (tl *TodoList) Save(ctx context.Context, cfg *Config, name string) error {
 			}
 			defer relay.Close()
 
-			relay.Publish(ctx, e)
+            err = relay.Publish(ctx, e)
+			if err != nil {
+				log.Println(err)
+				return
+			}
 		}()
 	}
 	wg.Wait()
@@ -262,7 +266,7 @@ func main() {
 		}
 	}
 
-	if args[0] == "new" {
+	if args[0] == "add" {
 		err := add(ctx, cfg, args[1], args[2])
 		if err != nil {
 			fmt.Printf("ERROR: %v\n", err)
