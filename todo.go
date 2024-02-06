@@ -1,4 +1,4 @@
-package main
+package todo
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"sort"
 	"sync"
 	"time"
@@ -158,7 +159,7 @@ func (tl *TodoList) Save(ctx context.Context, cfg *Config, name string) error {
 	return nil
 }
 
-func add(ctx context.Context, cfg *Config, name, content string) error {
+func Add(ctx context.Context, cfg *Config, name, content string) error {
 
 	var tl TodoList
 	err := tl.Load(ctx, cfg, name)
@@ -181,7 +182,7 @@ func add(ctx context.Context, cfg *Config, name, content string) error {
 	return tl.Save(ctx, cfg, name)
 }
 
-func list(ctx context.Context, cfg *Config, name string) error {
+func List(ctx context.Context, cfg *Config, name string) error {
 
 	var tl TodoList
 	err := tl.Load(ctx, cfg, name)
@@ -205,7 +206,7 @@ func list(ctx context.Context, cfg *Config, name string) error {
 	return nil
 }
 
-func done(ctx context.Context, cfg *Config, name, id string) error {
+func Done(ctx context.Context, cfg *Config, name, id string) error {
 
 	var tl TodoList
 	err := tl.Load(ctx, cfg, name)
@@ -223,7 +224,7 @@ func done(ctx context.Context, cfg *Config, name, id string) error {
 	return tl.Save(ctx, cfg, name)
 }
 
-func undone(ctx context.Context, cfg *Config, name, id string) error {
+func Undone(ctx context.Context, cfg *Config, name, id string) error {
 
 	var tl TodoList
 	err := tl.Load(ctx, cfg, name)
@@ -240,6 +241,24 @@ func undone(ctx context.Context, cfg *Config, name, id string) error {
 
 	return tl.Save(ctx, cfg, name)
 }
+
+func Delete(ctx context.Context, cfg *Config, id, name string) error {
+
+    log.Printf("deleting item %s from list %s", id, name)
+
+	var tl TodoList
+	err := tl.Load(ctx, cfg, name)
+	if err != nil {
+		return err
+	}
+
+    tl = slices.DeleteFunc(tl, func(t Todo) bool {
+        return t.Id == "" || t.Id == id
+    })
+
+	return tl.Save(ctx, cfg, name)
+}
+
 
 func main() {
 
@@ -260,28 +279,28 @@ func main() {
 	ctx := context.Background()
 
 	if args[0] == "list" {
-		err := list(ctx, cfg, args[1])
+		err := List(ctx, cfg, args[1])
 		if err != nil {
 			fmt.Printf("ERROR: %v\n", err)
 		}
 	}
 
 	if args[0] == "add" {
-		err := add(ctx, cfg, args[1], args[2])
+		err := Add(ctx, cfg, args[1], args[2])
 		if err != nil {
 			fmt.Printf("ERROR: %v\n", err)
 		}
 	}
 
 	if args[0] == "done" {
-		err := done(ctx, cfg, args[1], args[2])
+		err := Done(ctx, cfg, args[1], args[2])
 		if err != nil {
 			fmt.Printf("ERROR: %v\n", err)
 		}
 	}
 
 	if args[0] == "undone" {
-		err := undone(ctx, cfg, args[1], args[2])
+		err := Undone(ctx, cfg, args[1], args[2])
 		if err != nil {
 			fmt.Printf("ERROR: %v\n", err)
 		}
